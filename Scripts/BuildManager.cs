@@ -13,6 +13,7 @@ public class BuildManager : MonoBehaviour
     [SerializeField]
     private GameObject[] turretsArray;
 
+    private GameObject CancelButton;
     private Turret[] turrets;
     private Money money;
 
@@ -20,7 +21,8 @@ public class BuildManager : MonoBehaviour
     void Awake()
     {
         money = GetComponent<Money>();
-
+        CancelButton = GameObject.Find("CancelButton");
+        CancelButton.SetActive(false);
         if (turretsArray != null)
         {
             List<Turret> _turrets = new List<Turret>();
@@ -44,26 +46,32 @@ public class BuildManager : MonoBehaviour
     public void Build(Vector3 Position, Quaternion Rotation)
     {
 
-        if (money.money >= selectedTurretCost && turret != null)
+        if (money.money >= turretCost && turret != null)
         {
-            money.Add(-selectedTurretCost);
+            money.Add(-turretCost);
             GameObject obj = (GameObject)Instantiate( selectedTurret.gameObject, Position, Rotation);
             turret = null;
+            turretCost = 0;
+            CancelButton.SetActive(false);
         }
     }
 
     public void Build(Vector3 Position, Quaternion Rotation, out Turret _turret)
     {
 
-        if (money.money >= selectedTurretCost && turret != null)
+        if (money.money >= turretCost && turret != null)
         {
-            money.Add(-selectedTurretCost);
+            money.Add(-turretCost);
             GameObject obj = (GameObject)Instantiate(selectedTurret.gameObject, Position, Rotation);
             _turret = obj.GetComponent<Turret>();
             turret = null;
+            turretCost = 0;
+            CancelButton.SetActive(false);
             return;
         }
         _turret = null;
+        turretCost = 0;
+        CancelButton.SetActive(false);
     }
 
     public void SelectTurret(int index)
@@ -73,6 +81,14 @@ public class BuildManager : MonoBehaviour
 
         turret = turrets[index];
         turretCost = turret.Cost;
+        CancelButton.SetActive(true);
+    }
+
+    public void SetTurretToNull()
+    {
+        turret = null; 
+        turretCost = 0;
+        CancelButton.SetActive(false);
     }
 
 }

@@ -16,10 +16,15 @@ public class Bullet : MonoBehaviour {
     {
         target = _target;
     }
+
+    public void SetDamage(float _damage)
+    {
+        damage = Random.Range((_damage - _damage * 0.1f), (_damage + _damage * 0.1f));
+    }
     
 	void Start ()
     {
-        speed += (float)WaveSpawner.Wave; 
+        speed += (float)WaveSpawner.Wave;
         health = target.GetComponent<EnemyHealth>();
     }
 	

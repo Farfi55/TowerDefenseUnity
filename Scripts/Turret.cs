@@ -5,34 +5,39 @@ public class Turret : MonoBehaviour {
 
     private Transform target;   
 
-    public int Cost { get { return cost; } }
-
-    [SerializeField]
-    private const int cost = 250;
+    public int Cost { get { return cost; } }    
 
     [Header("Attributes")]
     public float range = 13f;
-    public float fireRate = 1.25f;
+    public float fireRate = 1.25f;    
+    public float bulletDamage;
+
     private float fireCountdown;
+    
+    public int cost = 250;
 
-
-    [Header("Unity Setup Fields")]
-    private float countDown = 0.5f;
-    public float TurnSpeed;
-    private Transform partToRotate;
-
+    [Header("Unity Setup Fields")]    
     public GameObject bulletPrefab;
-
+    public float TurnSpeed;
     public Transform firePoint;
+    public bool hasMuzzleFlash;
+    public bool hasShootEffect;
+
+    private Transform partToRotate;
+    private float countDown = 0.5f;    
     private ParticleSystem ShootEffect;
     private Light muzzleFlash;
 
 
     void Start()
-    {        
+    {
         partToRotate = transform.FindChild("PartToRotate");
-        ShootEffect = GetComponentInChildren<ParticleSystem>();
-        muzzleFlash = GetComponentInChildren<Light>();
+
+        if (ShootEffect)
+            ShootEffect = GetComponentInChildren<ParticleSystem>();
+
+        if (hasMuzzleFlash)
+            muzzleFlash = GetComponentInChildren<Light>();
     }
     
 
@@ -62,9 +67,9 @@ public class Turret : MonoBehaviour {
             }
         }        
     }
-    
-    		
-	void Update ()
+
+
+    void Update()
     {
 
         if (target != null && Vector3.Distance(transform.position, target.position) > range)
@@ -74,10 +79,10 @@ public class Turret : MonoBehaviour {
         if (target == null)
         {
             countDown -= Time.deltaTime * GameSpeed.speed;
-            if(countDown < 0f)
+            if (countDown < 0f)
             {
                 countDown = 0.5f;
-                UpdateTarget();                
+                UpdateTarget();
             }
         }
 
@@ -88,25 +93,24 @@ public class Turret : MonoBehaviour {
             Vector3 rotation = Quaternion.Lerp(partToRotate.rotation, lookRotation, Time.deltaTime * TurnSpeed * GameSpeed.speed).eulerAngles;
             partToRotate.rotation = Quaternion.Euler(0f, rotation.y, 0f);
 
-            if(fireCountdown <= 0f)
+            if (fireCountdown <= 0f)
             {
                 Shoot();
                 fireCountdown = fireRate;
             }
             fireCountdown -= Time.deltaTime * GameSpeed.speed;
 
-            
+
         }
-
-        if (ShootEffect.isPlaying)
-            ShootEffect.playbackSpeed = GameSpeed.speed;
-
-
+        if (ShootEffect != null)
+            if (ShootEffect.isPlaying)
+                ShootEffect.playbackSpeed = GameSpeed.speed;
     }
 
     void Shoot()
     {
-        ShootEffect.Play();
+        if(ShootEffect != null)
+            ShootEffect.Play();
         GameObject bulletGameObj = (GameObject)Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Bullet bullet = bulletGameObj.GetComponent<Bullet>();
         flash();
@@ -115,13 +119,15 @@ public class Turret : MonoBehaviour {
 
         if(bullet != null)
         {
+            bullet.SetDamage(bulletDamage);
             bullet.Seek(target);
         }
     }
 
     void flash()
     {
-        muzzleFlash.enabled = !muzzleFlash.enabled;
+        if (muzzleFlash != null)
+            muzzleFlash.enabled = !muzzleFlash.enabled;
     }
 
 }
